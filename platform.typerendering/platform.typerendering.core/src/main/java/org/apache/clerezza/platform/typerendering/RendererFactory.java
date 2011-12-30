@@ -35,7 +35,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.felix.scr.annotations.Services;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
@@ -49,9 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author mir, reto
  */
 @Component
-@Services({
-	@Service(RendererFactory.class)
-})
+@Service(RendererFactory.class)
 @Reference(name = "typeRenderlet",
 cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
 policy = ReferencePolicy.DYNAMIC,
@@ -199,11 +196,11 @@ public class RendererFactory {
 			regexMap = new RegexMap<MediaTypeMap<TypeRenderletStartLevel>>();
 			typeRenderletMap.put(rdfType, regexMap);
 		}
-		final String mode = typeRenderlet.getModePattern();
-		MediaTypeMap<TypeRenderletStartLevel> mediaTypeMap = regexMap.getFirstExactMatch(mode);
+		final String modePattern = typeRenderlet.getModePattern();
+		MediaTypeMap<TypeRenderletStartLevel> mediaTypeMap = regexMap.getFirstExactMatch(modePattern);
 		if (mediaTypeMap == null) {
 			mediaTypeMap = new MediaTypeMap<TypeRenderletStartLevel>();
-			regexMap.addEntry(mode, mediaTypeMap);
+			regexMap.addEntry(modePattern, mediaTypeMap);
 		}
 		final MediaType mediaType = typeRenderlet.getMediaType();
 		mediaTypeMap.addEntry(mediaType, new TypeRenderletStartLevel(typeRenderlet, startLevel));

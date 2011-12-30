@@ -39,18 +39,8 @@ public class UIMAExecutorFactory {
     return new UIMAExecutor(aeProvider);
   }
 
-  public UIMAExecutor createUIMAExecutor(ClassLoader classLoader) {
-    AEProvider aeProvider = new AEProvider().withDelegateClassloader(classLoader);
-    return new UIMAExecutor(aeProvider);
-  }
-
   public UIMAExecutor createUIMAExecutor(String defaultXMLPath) {
     AEProvider aeProvider = new AEProvider().withDefaultDescriptor(defaultXMLPath);
-    return new UIMAExecutor(aeProvider);
-  }
-
-  public UIMAExecutor createUIMAExecutor(ClassLoader classLoader, String defaultXMLPath) {
-    AEProvider aeProvider = new AEProvider().withDefaultDescriptor(defaultXMLPath).withDelegateClassloader(classLoader);
     return new UIMAExecutor(aeProvider);
   }
 }
