@@ -96,7 +96,7 @@ public class SortedCountFacetCollector extends CountFacetCollector {
 	}
 
 	@Override
-	void postProcess() {
+	public void postProcess() {
 		super.postProcess();
 		
 		Collection<VirtualProperty> properties = facetMap.keySet();

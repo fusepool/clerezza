@@ -23,9 +23,9 @@ package org.apache.clerezza.rdf.cris;
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 
@@ -38,6 +38,7 @@ import org.apache.lucene.util.Version;
  */
 public class GenericCondition extends Condition {
 
+  //TODO should not use LuceneQueryParser
 	private final MultiFieldQueryParser queryParser;
 	private final String searchQuery;
 	private final String[] fields;
@@ -73,9 +74,9 @@ public class GenericCondition extends Condition {
 		}
 		this.searchQuery = searchQuery;
 
-		this.queryParser = new MultiFieldQueryParser(Version.LUCENE_30,
+		this.queryParser = new MultiFieldQueryParser(Version.LUCENE_44,
 				fields,
-				new StandardAnalyzer(Version.LUCENE_30));
+				new StandardAnalyzer(Version.LUCENE_44));
 		queryParser.setAllowLeadingWildcard(true);
 	}
 

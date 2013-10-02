@@ -27,6 +27,7 @@ import org.apache.lucene.search.SortField;
  *
  * @author daniel
  */
+@Deprecated
 final class SortFieldArrayWrapper {
 	private final SortField[] wrappedArray;
 

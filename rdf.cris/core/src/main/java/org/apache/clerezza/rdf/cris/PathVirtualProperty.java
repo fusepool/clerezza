@@ -55,14 +55,14 @@ public class PathVirtualProperty extends VirtualProperty {
 	}
 
 	@Override
-	protected List<String> value(GraphNode node) {
+	public List<String> value(GraphNode node) {
 		List<String> list = new ArrayList<String>();
 		getPathResults(node, this.properties, list);
 		return list;
 	}
 
 	@Override
-	protected List<UriRef> pathToIndexedResource(UriRef property) {
+	public List<UriRef> pathToIndexedResource(UriRef property) {
 
 		List<UriRef> list = new ArrayList<UriRef>();
 		for (UriRef prop : this.properties) {

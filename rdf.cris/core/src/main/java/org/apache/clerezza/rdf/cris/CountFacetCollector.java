@@ -64,7 +64,7 @@ public class CountFacetCollector extends FacetCollector<Integer> {
 	}
 
 	@Override
-	void addFacetValue(VirtualProperty field, String value) {
+	public void addFacetValue(VirtualProperty field, String value) {
 		Map<String, Integer> propertyMap = facetMap.get(field);
 		Integer old = propertyMap.get(value);
 		propertyMap.put(value, old == null ? 1 : old + 1);
@@ -81,12 +81,12 @@ public class CountFacetCollector extends FacetCollector<Integer> {
 	}
 	
 	@Override
-	Map<VirtualProperty, Map<String, Integer>> getFacetMap() {
+	public Map<VirtualProperty, Map<String, Integer>> getFacetMap() {
 		return facetMap;
 	}
 	
 	@Override
-	void postProcess() {
+	public void postProcess() {
 		//do nothing
 	}
 }

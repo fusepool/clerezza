@@ -64,7 +64,7 @@ public class JoinVirtualProperty extends VirtualProperty {
 	}
 
 	@Override
-	protected List<UriRef> pathToIndexedResource(UriRef property) {
+	public List<UriRef> pathToIndexedResource(UriRef property) {
 
 		List tempList = null;
 		for (VirtualProperty p : this.properties) {

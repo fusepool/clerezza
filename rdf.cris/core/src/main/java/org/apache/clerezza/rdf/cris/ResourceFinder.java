@@ -23,27 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.clerezza.rdf.core.NonLiteral;
 import org.apache.clerezza.rdf.core.UriRef;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 
 /**
  * A searchable index.
  *
  * @author rbn, tio, daniel
  */
- public abstract class ResourceFinder {
+ public interface ResourceFinder {
 	
-	/**
-	 * recreates the index
-	 */
-	public abstract void reCreateIndex();
-
-	/**
-	 * optimize the index
-	 */
-	public abstract void optimizeIndex();
-
-
 	/**
 	 * Find resources using conditions.
 	 * 
@@ -55,9 +44,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(List<? extends Condition> conditions)
-			throws ParseException {
-		return findResources(conditions, new FacetCollector[0]);
-	}
+			throws ParseException;
 	
 	/**
 	 * Find resources using conditions and collect facets. 
@@ -72,10 +59,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(List<? extends Condition> conditions, 
-			FacetCollector... facetCollectors) throws ParseException {
-		
-		return findResources(conditions, null, facetCollectors);
-	}
+			FacetCollector... facetCollectors) throws ParseException;
 	
 	/**
 	 * Find resources using conditions and collect facets and a sort order. 
@@ -105,9 +89,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(UriRef property, String pattern) 
-			throws ParseException {
-		return findResources(property, pattern, false);
-	}
+			throws ParseException;
 	
 	/**
 	 * Find resource with given property whose value matches a pattern.
@@ -120,9 +102,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(UriRef property, String pattern, boolean escapePattern)
-			throws ParseException {
-		return findResources(property, pattern, escapePattern, new FacetCollector[0]);
-	}
+			throws ParseException;
 	
 	/**
 	 * Find resource with given property whose value matches a pattern and collect facets.
@@ -137,15 +117,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 */
 	public List<NonLiteral> findResources(UriRef property, String pattern, 
 			boolean escapePattern, FacetCollector... facetCollectors) 
-			throws ParseException {
-		
-		List<Condition> list = new ArrayList<Condition>();
-		if(escapePattern) {
-			pattern = QueryParser.escape(pattern);
-		}
-		list.add(new WildcardCondition(new PropertyHolder(property), pattern));
-		return findResources(list, facetCollectors);
-	}
+			throws ParseException;
 	
 	/**
 	 * Find resource with given property whose value matches a pattern 
@@ -162,15 +134,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 */
 	public List<NonLiteral> findResources(UriRef property, String pattern, 
 			boolean escapePattern, SortSpecification sortSpecification, 
-			FacetCollector... facetCollectors) throws ParseException {
-		
-		List<Condition> list = new ArrayList<Condition>();
-		if(escapePattern) {
-			pattern = QueryParser.escape(pattern);
-		}
-		list.add(new WildcardCondition(new PropertyHolder(property), pattern));
-		return findResources(list, sortSpecification, facetCollectors);
-	}
+			FacetCollector... facetCollectors) throws ParseException;;
 	
 	/**
 	 * Find resource with given VirtualProperty whose value matches a pattern.
@@ -182,9 +146,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(VirtualProperty property, String pattern) 
-			throws ParseException {
-		return findResources(property, pattern, false);
-	}
+			throws ParseException;
 
 	/**
 	 * Find resource with given VirtualProperty whose value matches a pattern.
@@ -197,10 +159,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 * @throws ParseException when the resulting query is illegal.
 	 */
 	public List<NonLiteral> findResources(VirtualProperty property, String pattern,
-			boolean escapePattern) throws ParseException {
-		
-		return findResources(property, pattern, escapePattern, new FacetCollector[0]);
-	}
+			boolean escapePattern) throws ParseException;
 	
 	/**
 	 * Find resource with given VirtualProperty whose value matches a pattern and collect facets.
@@ -215,15 +174,7 @@ import org.apache.lucene.queryParser.QueryParser;
 	 */
 	public List<NonLiteral> findResources(VirtualProperty property, String pattern, 
 			boolean escapePattern, FacetCollector... facetCollectors) 
-			throws ParseException {
-		
-		List<Condition> list = new ArrayList<Condition>();
-		if(escapePattern) {
-			pattern = QueryParser.escape(pattern);
-		}
-		list.add(new WildcardCondition(property, pattern));
-		return findResources(list, facetCollectors);
-	}
+			throws ParseException;
 	
 	/**
 	 * Find resource with given VirtualProperty whose value matches a pattern 
@@ -240,13 +191,5 @@ import org.apache.lucene.queryParser.QueryParser;
 	 */
 	public List<NonLiteral> findResources(VirtualProperty property, String pattern, 
 			boolean escapePattern, SortSpecification sortSpecification, 
-			FacetCollector... facetCollectors) throws ParseException {
-		
-		List<Condition> list = new ArrayList<Condition>();
-		if(escapePattern) {
-			pattern = QueryParser.escape(pattern);
-		}
-		list.add(new WildcardCondition(property, pattern));
-		return findResources(list, sortSpecification, facetCollectors);
-	}
+			FacetCollector... facetCollectors) throws ParseException;
 }

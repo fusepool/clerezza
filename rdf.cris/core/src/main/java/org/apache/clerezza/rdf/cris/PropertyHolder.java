@@ -54,7 +54,7 @@ public class PropertyHolder extends VirtualProperty {
 	}
 	
 	@Override
-	protected List<String> value(GraphNode node) {
+	public List<String> value(GraphNode node) {
 		List<String> list = new ArrayList<String>();
 		Lock lock = node.readLock();
 		lock.lock();
@@ -75,7 +75,7 @@ public class PropertyHolder extends VirtualProperty {
 	}
 	
 	@Override
-	protected List<UriRef> pathToIndexedResource(UriRef property) {
+	public List<UriRef> pathToIndexedResource(UriRef property) {
 		return new ArrayList<UriRef>();
 	}
 }

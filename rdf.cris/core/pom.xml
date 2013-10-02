@@ -31,11 +31,10 @@
 	<version>0.2-incubating-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<name>Clerezza - RDF Composite Resource Index Service Core</name>
+    <properties>
+      <lucene.version>4.4.0</lucene.version>
+    </properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.clerezza</groupId>
-			<artifactId>rdf.cris.ontologies</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.clerezza</groupId>
 			<artifactId>rdf.core</artifactId>
@@ -47,27 +46,22 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-highlighter</artifactId>
-			<version>3.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers</artifactId>
-			<version>3.0.3</version>
+			<version>${lucene.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-memory</artifactId>
-			<version>3.0.3</version>
+			<version>${lucene.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queries</artifactId>
-			<version>3.0.3</version>
+			<version>${lucene.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-			<version>3.0.3</version>
+			<version>${lucene.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wymiwyg</groupId>
@@ -78,6 +72,24 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+	 <dependency>
+	  <groupId>org.apache.lucene</groupId>
+	  <artifactId>lucene-analyzers-common</artifactId>
+	  <version>${lucene.version}</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.apache.lucene</groupId>
+	  <artifactId>lucene-queryparser</artifactId>
+	  <version>${lucene.version}</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.apache.clerezza</groupId>
+	  <artifactId>rdf.cris.ontologies</artifactId>
+	  <version>0.3-SNAPSHOT</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>

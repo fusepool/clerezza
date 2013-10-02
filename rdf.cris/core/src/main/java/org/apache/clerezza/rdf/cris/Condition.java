@@ -28,7 +28,7 @@ import org.apache.lucene.search.Query;
 
 public abstract class Condition {
 	
-	protected abstract Query query();
+	public abstract Query query();
 
 }
 

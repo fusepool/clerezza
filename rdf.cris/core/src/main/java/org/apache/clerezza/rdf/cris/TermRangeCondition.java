@@ -87,6 +87,8 @@ public class TermRangeCondition extends Condition {
 	
 	@Override
 	public Query query() {
-		return new TermRangeQuery(property.stringKey, lowerTerm, upperTerm, includeUpper, includeLower);
+      //TODO change to 4.4 API 
+      //return new TermRangeQuery(property.stringKey, lowerTerm, upperTerm, includeUpper, includeLower);
+      return null;
 	}
 }

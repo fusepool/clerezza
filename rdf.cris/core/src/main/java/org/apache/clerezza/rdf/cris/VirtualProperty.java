@@ -110,7 +110,7 @@ public abstract class VirtualProperty {
 	 * @param node The node containing the original properties (where to get the literal value).
 	 * @return The value.
 	 */
-	protected abstract List<String> value(GraphNode node);
+	public abstract List<String> value(GraphNode node);
 	
 	/**
 	 * The shortest path of inverse RDF properties from property to the indexed resource, this is an
@@ -121,5 +121,5 @@ public abstract class VirtualProperty {
 	 * 
 	 * @param property the property.
 	 */
-	protected abstract List<UriRef> pathToIndexedResource(UriRef property);
+	public abstract List<UriRef> pathToIndexedResource(UriRef property);
 }

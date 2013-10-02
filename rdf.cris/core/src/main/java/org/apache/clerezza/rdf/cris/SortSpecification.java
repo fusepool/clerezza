@@ -19,6 +19,7 @@
 
 package org.apache.clerezza.rdf.cris;
 
+import org.apache.clerezza.rdf.cris.lucene.LuceneGraph;
 import java.util.ArrayList;
 import org.apache.lucene.search.SortField;
 
@@ -28,50 +29,9 @@ import org.apache.lucene.search.SortField;
  * @author daniel
  */
 public class SortSpecification {
+  
+  	public static final SortField.Type STRING_COMPARETO = SortField.Type.STRING_VAL;
 	
-	/**
-	 * Interpret values as bytes.
-	 */
-	public static final int BYTE = SortField.BYTE;
-	
-	/**
-	 * Interpret values as doubles.
-	 */
-	public static final int DOUBLE = SortField.DOUBLE;
-	
-	/**
-	 * Interpret values as floats.
-	 */
-	public static final int FLOAT = SortField.FLOAT;
-	
-	/**
-	 * Interpret values as integers.
-	 */
-	public static final int INT = SortField.INT;
-	
-	/**
-	 * Interpret values as longs.
-	 */
-	public static final int LONG = SortField.LONG;
-	
-	/**
-	 * Interpret values as shorts.
-	 */
-	public static final int SHORT = SortField.SHORT;
-	
-	/**
-	 * Interpret values as strings (using ordinals, faster).
-	 */
-	public static final int STRING = SortField.STRING;
-	
-	/**
-	 * Interpret values as strings (using compareTo, slower).
-	 */
-	public static final int STRING_COMPARETO = SortField.STRING_VAL;
-	
-	/**
-	 * Sort by indexing order (first indexed resource is first, etc.).
-	 */
 	public static final SortEntry INDEX_ORDER = new SortEntry() {
 		@Override
 		SortField getSortField() {
@@ -104,8 +64,8 @@ public class SortSpecification {
 		 * @param type		The property-values type.
 		 * @param reverse	True sorts in reverse. False uses standard order.
 		 */
-		SortEntry(VirtualProperty property, int type, boolean reverse) {
-			sortField = new SortField(GraphIndexer.SORT_PREFIX + property.getStringKey(), type, reverse);
+		SortEntry(VirtualProperty property, SortField.Type type, boolean reverse) {
+			sortField = new SortField(IndexConstants.SORT_PREFIX + property.getStringKey(), type, reverse);
 		}
 		
 		/**
@@ -155,7 +115,7 @@ public class SortSpecification {
 	 * @param property	the property
 	 * @param type	the type
 	 */
-	public void add(VirtualProperty property, int type) {
+	public void add(VirtualProperty property, SortField.Type type) {
 		add(property, type, false);
 	}
 	
@@ -172,7 +132,7 @@ public class SortSpecification {
 	 * @param type	the type
 	 * @param reverse whether to sort in reverse.
 	 */
-	public void add(VirtualProperty property, int type, boolean reverse) {
+	public void add(VirtualProperty property, SortField.Type type, boolean reverse) {
 		SortEntry sortEntry = new SortEntry(property, type, reverse);
 		add(sortEntry);
 	}
@@ -195,7 +155,7 @@ public class SortSpecification {
 	 * @param property the property.
 	 * @param type the type.
 	 */
-	public void remove(VirtualProperty property, int type) {
+	public void remove(VirtualProperty property, SortField.Type type) {
 		remove(property, type, false);
 	}
 	
@@ -206,7 +166,7 @@ public class SortSpecification {
 	 * @param type the type.
 	 * @param reverse whether the sort is specified in reverse.
 	 */
-	public void remove(VirtualProperty property, int type, boolean reverse) {
+	public void remove(VirtualProperty property, SortField.Type type, boolean reverse) {
 		SortEntry sortEntry = new SortEntry(property, type, reverse);
 		remove(sortEntry);
 	}
@@ -245,7 +205,7 @@ public class SortSpecification {
 	 * 
 	 * @return	the SortFields 
 	 */
-	SortField[] getSortFields() {
+	public SortField[] getSortFields() {
 		SortField[] array = new SortField[size()];
 		for(int i = 0; i < size(); ++i) {
 			array[i] = sortPriority.get(i).getSortField();

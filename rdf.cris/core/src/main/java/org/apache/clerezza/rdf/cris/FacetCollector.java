@@ -71,7 +71,7 @@ public abstract class FacetCollector<T> {
 	 * 
 	 * @return the facetMap
 	 */
-	abstract Map<VirtualProperty, Map<String, T>> getFacetMap();
+	public abstract Map<VirtualProperty, Map<String, T>> getFacetMap();
 	
 	/**
 	 * This method adds a new data to the facet map.
@@ -79,12 +79,12 @@ public abstract class FacetCollector<T> {
 	 * @param property	The property.
 	 * @param value	The value of the property as returned by Lucene.
 	 */
-	abstract void addFacetValue(VirtualProperty property, String value);
+	public abstract void addFacetValue(VirtualProperty property, String value);
 	
 	/**
 	 * Expert: This method performs post processing on the FacetCollector. 
 	 * Users should not call it. It is intended for avoiding time consuming tasks 
 	 * until changes are written to the collector.
 	 */
-	abstract void postProcess();
+	public abstract void postProcess();
 }
