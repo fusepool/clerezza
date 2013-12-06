@@ -18,6 +18,8 @@
  */
 package org.apache.clerezza.rdf.core;
 
+import java.io.Serializable;
+
 /**
  * Some entity. It could be a web resource such as a web page, or it could 
  * be a concrete physical thing such as a tree or a car. It could be an 
@@ -25,6 +27,6 @@ package org.apache.clerezza.rdf.core;
  *
  * @author reto
  */
-public interface Resource {
+public interface Resource extends Serializable {
 
 }
