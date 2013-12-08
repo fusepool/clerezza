@@ -18,16 +18,18 @@
  */
 package org.apache.clerezza.rdf.jena.sparql;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import org.apache.clerezza.rdf.core.BNode;
 import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.sparql.SolutionMapping;
 import org.apache.clerezza.rdf.core.sparql.query.Variable;
 import org.apache.clerezza.rdf.jena.commons.Jena2TriaUtil;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 /**
  *
@@ -35,7 +37,7 @@ import org.apache.clerezza.rdf.jena.commons.Jena2TriaUtil;
  */
 class HashMapSolutionMapping extends HashMap<Variable, Resource> implements SolutionMapping {
 
-    transient Jena2TriaUtil convertor = new Jena2TriaUtil(new HashMap<Node,BNode>());
+    Jena2TriaUtil convertor = new Jena2TriaUtil(new HashMap<Node,BNode>());
     
     public HashMapSolutionMapping(QuerySolution querySolution) {
         final Iterator<String> varNames = querySolution.varNames();

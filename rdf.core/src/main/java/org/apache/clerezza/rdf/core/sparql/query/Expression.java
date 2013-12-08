@@ -18,7 +18,6 @@
  */
 package org.apache.clerezza.rdf.core.sparql.query;
 
-import java.io.Serializable;
 
 /**
  * This interface models logical, relational, and numeric expression.
@@ -38,5 +37,5 @@ import java.io.Serializable;
  *
  * @author hasan
  */
-public interface Expression extends Serializable {
+public interface Expression {
 }
