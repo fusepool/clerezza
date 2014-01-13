@@ -15,6 +15,7 @@
  */
 package org.apache.clerezza.rdf.cris;
 
+import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -37,6 +38,13 @@ public class BoostCondition extends Condition {
     this.value = value;
     this.boost = boost;
   }
+  
+  public BoostCondition(UriRef uriRefProperty, String value, Float boost) {
+    this(new PropertyHolder(uriRefProperty,false), value,boost);
+  }
+  
+  
+          
 
   @Override
   protected Query query() {
