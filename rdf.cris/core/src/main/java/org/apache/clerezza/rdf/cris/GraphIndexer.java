@@ -635,6 +635,8 @@ public class GraphIndexer extends ResourceFinder {
             booleanQuery.add(c.query(), BooleanClause.Occur.MUST);
         }
 
+        logger.info("Lucene query: " + booleanQuery.toString());
+        
         IndexSearcher searcher = luceneTools.getIndexSearcher();
         ScoreDoc[] hits = null;
         try {
@@ -912,11 +914,11 @@ public class GraphIndexer extends ResourceFinder {
                 //for searching (the extra field doesn't cost much time)
                 doc.add(new Field(vProperty.stringKey,
                         propertyValue,
-                        Field.Store.NO,
+                        Field.Store.YES,
                         Field.Index.NOT_ANALYZED));
                 doc.add(new Field(vProperty.stringKey,
                         propertyValue,
-                        Field.Store.NO,
+                        Field.Store.YES,
                         Field.Index.ANALYZED));
             }
         }

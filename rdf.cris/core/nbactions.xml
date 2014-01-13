@@ -7,6 +7,9 @@
       <goal>install</goal>
       <goal>org.apache.sling:maven-sling-plugin:install</goal>
     </goals>
+    <properties>
+                <skipTests>true</skipTests>
+            </properties>
   </action>
   <action>
             <actionName>CUSTOM-Force dependencies</actionName>
@@ -15,5 +18,15 @@
                 <goal>-U</goal>
                 <goal>install</goal>
             </goals>
+        </action>
+  <action>
+            <actionName>rebuild</actionName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
         </action>
 </actions>

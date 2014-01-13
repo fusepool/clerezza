@@ -43,12 +43,9 @@ public class BoostCondition extends Condition {
     this(new PropertyHolder(uriRefProperty,false), value,boost);
   }
   
-  
-          
-
   @Override
   protected Query query() {
-    TermQuery termQuery = new TermQuery(new Term(property.stringKey, value));
+    TermQuery termQuery = new TermQuery(new Term(property.getStringKey(), value));
     termQuery.setBoost(boost);
     return termQuery;
   }
