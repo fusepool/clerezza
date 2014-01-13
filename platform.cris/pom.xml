@@ -51,6 +51,8 @@
             <artifactId>rdf.core</artifactId>
             <version>0.14-SNAPSHOT</version>
         </dependency>
+		<!--
+		-->
         <dependency>
             <groupId>org.apache.clerezza</groupId>
             <artifactId>rdf.utils</artifactId>
