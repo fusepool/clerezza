@@ -65,7 +65,7 @@ public class GenericCondition extends Condition {
         fields = new String[properties.size()];
         Iterator<VirtualProperty> it = properties.iterator();
         for(int i = 0; i < properties.size(); ++i) {
-            fields[i] = it.next().stringKey;
+            fields[i] = it.next().getStringKey();
         }
         
         if(escapeQuery) {

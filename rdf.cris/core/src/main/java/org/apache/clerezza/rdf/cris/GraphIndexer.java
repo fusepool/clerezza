@@ -51,6 +51,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
@@ -667,7 +668,12 @@ public class GraphIndexer extends ResourceFinder {
             Document d;
             try {
                 d = searcher.doc(docId);
-                collectFacets(facetCollectors, d);
+                
+//                for(IndexableField field:d.getFields()){
+//                  logger.info("FIELD: " + field.name() + " --> " + field.stringValue());
+//                }
+                
+                        collectFacets(facetCollectors, d);
                 result.add(getResource(d));
             } catch (IOException ex) {
                 logger.error("CRIS Error: ", ex);
@@ -905,18 +911,18 @@ public class GraphIndexer extends ResourceFinder {
             logger.info("indexing " + vProperty + " with values " + (vProperty.value(
                     new GraphNode(resource, this.baseGraph))).size());
             for (String propertyValue : vProperty.value(new GraphNode(resource, this.baseGraph))) {
-                logger.info("indexing " + vProperty + "(" + vProperty.stringKey + ") with value " + (propertyValue));
+                logger.info("indexing " + vProperty + "(" + vProperty.getStringKey() + ") with value " + (propertyValue));
                 //for sorting
-                doc.add(new Field(SORT_PREFIX + vProperty.stringKey,
+                doc.add(new Field(SORT_PREFIX + vProperty.getStringKey(),
                         propertyValue,
                         Field.Store.YES,
                         Field.Index.NOT_ANALYZED_NO_NORMS));
                 //for searching (the extra field doesn't cost much time)
-                doc.add(new Field(vProperty.stringKey,
+                doc.add(new Field(vProperty.getStringKey(),
                         propertyValue,
                         Field.Store.YES,
                         Field.Index.NOT_ANALYZED));
-                doc.add(new Field(vProperty.stringKey,
+                doc.add(new Field(vProperty.getStringKey(),
                         propertyValue,
                         Field.Store.YES,
                         Field.Index.ANALYZED));

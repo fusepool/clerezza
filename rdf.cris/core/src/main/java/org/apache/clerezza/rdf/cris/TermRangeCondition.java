@@ -89,6 +89,6 @@ public class TermRangeCondition extends Condition {
     
     @Override
     public Query query() {
-        return new TermRangeQuery(property.stringKey, new BytesRef(lowerTerm), new BytesRef(upperTerm), includeUpper, includeLower);
+        return new TermRangeQuery(property.getStringKey(), new BytesRef(lowerTerm), new BytesRef(upperTerm), includeUpper, includeLower);
     }
 }
