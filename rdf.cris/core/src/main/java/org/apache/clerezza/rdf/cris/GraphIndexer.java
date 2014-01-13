@@ -634,7 +634,9 @@ public class GraphIndexer extends ResourceFinder {
         for (Condition c : conditions) {
             booleanQuery.add(c.query(), BooleanClause.Occur.MUST);
         }
-
+        System.out.println("xoxoxoxo <3");
+        logger.info("luceneQuery: " + booleanQuery.toString());
+        
         IndexSearcher searcher = luceneTools.getIndexSearcher();
         ScoreDoc[] hits = null;
         try {
