@@ -8,4 +8,12 @@
       <goal>org.apache.sling:maven-sling-plugin:install</goal>
     </goals>
   </action>
+  <action>
+            <actionName>CUSTOM-Force dependencies</actionName>
+            <displayName>Force dependencies</displayName>
+            <goals>
+                <goal>-U</goal>
+                <goal>install</goal>
+            </goals>
+        </action>
 </actions>

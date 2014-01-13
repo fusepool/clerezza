@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author tio
  */
-@Component(metatype=true)
+@Component(metatype=true, immediate = true)
 @Service(IndexService.class)
 public class IndexService extends ResourceFinder {
 
