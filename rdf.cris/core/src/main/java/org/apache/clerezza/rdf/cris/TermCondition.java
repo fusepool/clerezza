@@ -24,29 +24,36 @@ import org.apache.lucene.search.TermQuery;
  *
  * @author gamars
  */
-public class BoostCondition extends Condition {
+public class TermCondition extends Condition {
 
   /**
    * The property to search for.
    */
   VirtualProperty property;
   private String value;
-  private Float boost;
 
-  public BoostCondition(VirtualProperty property, String value, Float boost) {
+  
+  public TermCondition(VirtualProperty property, String value) {
+    this(property, value, 1.0f);
+  }
+  
+  public TermCondition(VirtualProperty property, String value, Float boost) {
     this.property = property;
     this.value = value;
     this.boost = boost;
   }
   
-  public BoostCondition(UriRef uriRefProperty, String value, Float boost) {
+  public TermCondition(UriRef uriRefProperty, String value) {
+    this(uriRefProperty, value, 1.0f);
+  }
+  public TermCondition(UriRef uriRefProperty, String value, Float boost) {
     this(new PropertyHolder(uriRefProperty,false), value,boost);
   }
   
   @Override
   protected Query query() {
     TermQuery termQuery = new TermQuery(new Term(property.getStringKey(), value));
-    termQuery.setBoost(boost);
+    termQuery.setBoost(this.getBoost());
     return termQuery;
   }
 }

@@ -633,7 +633,7 @@ public class GraphIndexer extends ResourceFinder {
 
         BooleanQuery booleanQuery = new BooleanQuery();
         for (Condition c : conditions) {
-            booleanQuery.add(c.query(), BooleanClause.Occur.MUST);
+            booleanQuery.add(c.query(), c.getBooleanClause());
         }
 
         logger.info("Lucene query: " + booleanQuery.toString());
