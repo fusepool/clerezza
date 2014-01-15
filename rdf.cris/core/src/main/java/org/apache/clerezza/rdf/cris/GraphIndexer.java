@@ -670,7 +670,7 @@ public class GraphIndexer extends ResourceFinder {
             try {
                 d = searcher.doc(docId);
                 
-                logger.info("docId: " + score + "\t#" +docId);
+                logger.info("docId: " + score + "\t#" +docId + "\t" + d.get(URI_FIELD_NAME));
                 
                 collectFacets(facetCollectors, d);
                 result.add(getResource(d));
