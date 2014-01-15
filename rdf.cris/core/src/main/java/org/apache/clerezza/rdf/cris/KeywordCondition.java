@@ -16,6 +16,7 @@
 package org.apache.clerezza.rdf.cris;
 
 import org.apache.clerezza.rdf.core.UriRef;
+import static org.apache.clerezza.rdf.cris.GraphIndexer.SORT_PREFIX;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -24,8 +25,8 @@ import org.apache.lucene.search.TermQuery;
  *
  * @author gamars
  */
-public class TermCondition extends Condition {
-
+public class KeywordCondition extends Condition {
+  
   /**
    * The property to search for.
    */
@@ -33,26 +34,26 @@ public class TermCondition extends Condition {
   private String value;
 
   
-  public TermCondition(VirtualProperty property, String value) {
+  public KeywordCondition(VirtualProperty property, String value) {
     this(property, value, 1.0f);
   }
   
-  public TermCondition(VirtualProperty property, String value, Float boost) {
+  public KeywordCondition(VirtualProperty property, String value, Float boost) {
     this.property = property;
     this.value = value;
     this.boost = boost;
   }
   
-  public TermCondition(UriRef uriRefProperty, String value) {
+  public KeywordCondition(UriRef uriRefProperty, String value) {
     this(uriRefProperty, value, 1.0f);
   }
-  public TermCondition(UriRef uriRefProperty, String value, Float boost) {
+  public KeywordCondition(UriRef uriRefProperty, String value, Float boost) {
     this(new PropertyHolder(uriRefProperty,false), value,boost);
   }
   
   @Override
   protected Query query() {
-    TermQuery termQuery = new TermQuery(new Term(property.getStringKey(), value));
+    TermQuery termQuery = new TermQuery(new Term(SORT_PREFIX+property.getStringKey(), value));
     termQuery.setBoost(this.getBoost());
     return termQuery;
   }

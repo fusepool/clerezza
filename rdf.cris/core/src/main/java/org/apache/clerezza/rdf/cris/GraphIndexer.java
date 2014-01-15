@@ -86,7 +86,13 @@ public class GraphIndexer extends ResourceFinder {
      * Prefix for stored Lucene fields.
      */
     static final String SORT_PREFIX = "_STORED_";
+    
+    /**
+     * Prefix for stored Lucene fields.
+     */
+    static final String KEYWORD_PREFIX = "_KW_";
 
+    
     /**
      * Field name for the resource field in Lucene.
      */
@@ -917,10 +923,10 @@ public class GraphIndexer extends ResourceFinder {
                         Field.Store.YES,
                         Field.Index.NOT_ANALYZED_NO_NORMS));
                 //for searching (the extra field doesn't cost much time)
-                doc.add(new Field(vProperty.getStringKey(),
-                        propertyValue,
-                        Field.Store.YES,
-                        Field.Index.NOT_ANALYZED));
+//                doc.add(new Field(vProperty.getStringKey(),
+//                        propertyValue,
+//                        Field.Store.YES,
+//                        Field.Index.NOT_ANALYZED));
                 doc.add(new Field(vProperty.getStringKey(),
                         propertyValue,
                         Field.Store.YES,
