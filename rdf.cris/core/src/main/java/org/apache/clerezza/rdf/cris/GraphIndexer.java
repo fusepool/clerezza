@@ -665,15 +665,14 @@ public class GraphIndexer extends ResourceFinder {
 
         for (int i = from; i < hits.length; ++i) {
             int docId = hits[i].doc;
+            float score = hits[i].score;
             Document d;
             try {
                 d = searcher.doc(docId);
                 
-//                for(IndexableField field:d.getFields()){
-//                  logger.info("FIELD: " + field.name() + " --> " + field.stringValue());
-//                }
+                logger.info("docId: " + score + "\t#" +docId);
                 
-                        collectFacets(facetCollectors, d);
+                collectFacets(facetCollectors, d);
                 result.add(getResource(d));
             } catch (IOException ex) {
                 logger.error("CRIS Error: ", ex);
