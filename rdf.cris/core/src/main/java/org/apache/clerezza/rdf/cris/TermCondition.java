@@ -52,7 +52,7 @@ public class TermCondition extends Condition {
   
   @Override
   protected Query query() {
-    TermQuery termQuery = new TermQuery(new Term(property.getStringKey(), value));
+    TermQuery termQuery = new TermQuery(new Term("\""+property.getStringKey()+"\"", value));
     termQuery.setBoost(this.getBoost());
     return termQuery;
   }
