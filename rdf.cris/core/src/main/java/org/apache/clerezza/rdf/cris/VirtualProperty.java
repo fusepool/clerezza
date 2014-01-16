@@ -55,7 +55,7 @@ public abstract class VirtualProperty {
      * As opposed to toString this doesn't need to be human readable but unique (as with
      * a strong hash.
      */
-    String stringKey;
+    protected String stringKey;
     
     /**
      * The RDF properties that are used to compute the value of this virtual property.
@@ -75,7 +75,8 @@ public abstract class VirtualProperty {
      * @return the key.
      */
     public String getStringKey() {
-        return stringKey;
+        return Util.sha1(stringKey.toString());
+        //return stringKey;
     }
 
     /**
