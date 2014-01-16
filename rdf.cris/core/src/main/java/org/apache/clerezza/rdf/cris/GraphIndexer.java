@@ -51,6 +51,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
@@ -85,7 +86,13 @@ public class GraphIndexer extends ResourceFinder {
      * Prefix for stored Lucene fields.
      */
     static final String SORT_PREFIX = "_STORED_";
+    
+    /**
+     * Prefix for stored Lucene fields.
+     */
+    static final String KEYWORD_PREFIX = "_KW_";
 
+    
     /**
      * Field name for the resource field in Lucene.
      */
@@ -632,9 +639,11 @@ public class GraphIndexer extends ResourceFinder {
 
         BooleanQuery booleanQuery = new BooleanQuery();
         for (Condition c : conditions) {
-            booleanQuery.add(c.query(), BooleanClause.Occur.MUST);
+            booleanQuery.add(c.query(), c.getBooleanClause());
         }
 
+        logger.info("Lucene query: " + booleanQuery.toString());
+        
         IndexSearcher searcher = luceneTools.getIndexSearcher();
         ScoreDoc[] hits = null;
         try {
@@ -662,9 +671,13 @@ public class GraphIndexer extends ResourceFinder {
 
         for (int i = from; i < hits.length; ++i) {
             int docId = hits[i].doc;
+            float score = hits[i].score;
             Document d;
             try {
                 d = searcher.doc(docId);
+                
+                logger.info("docId: " + score + "\t#" +docId + "\t" + d.get(URI_FIELD_NAME));
+                
                 collectFacets(facetCollectors, d);
                 result.add(getResource(d));
             } catch (IOException ex) {
@@ -903,20 +916,20 @@ public class GraphIndexer extends ResourceFinder {
             logger.info("indexing " + vProperty + " with values " + (vProperty.value(
                     new GraphNode(resource, this.baseGraph))).size());
             for (String propertyValue : vProperty.value(new GraphNode(resource, this.baseGraph))) {
-                logger.info("indexing " + vProperty + "(" + vProperty.stringKey + ") with value " + (propertyValue));
+                logger.info("indexing " + vProperty + "(" + vProperty.getStringKey() + ") with value " + (propertyValue));
                 //for sorting
-                doc.add(new Field(SORT_PREFIX + vProperty.stringKey,
+                doc.add(new Field(SORT_PREFIX + vProperty.getStringKey(),
                         propertyValue,
                         Field.Store.YES,
                         Field.Index.NOT_ANALYZED_NO_NORMS));
                 //for searching (the extra field doesn't cost much time)
-                doc.add(new Field(vProperty.stringKey,
+//                doc.add(new Field(vProperty.getStringKey(),
+//                        propertyValue,
+//                        Field.Store.YES,
+//                        Field.Index.NOT_ANALYZED));
+                doc.add(new Field(vProperty.getStringKey(),
                         propertyValue,
-                        Field.Store.NO,
-                        Field.Index.NOT_ANALYZED));
-                doc.add(new Field(vProperty.stringKey,
-                        propertyValue,
-                        Field.Store.NO,
+                        Field.Store.YES,
                         Field.Index.ANALYZED));
             }
         }

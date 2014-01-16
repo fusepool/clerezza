@@ -59,7 +59,7 @@ public class PropertyHolder extends VirtualProperty {
     public PropertyHolder(UriRef property, boolean facetProperty) {
         super(facetProperty);
         this.property = property;
-        stringKey = property.getUnicodeString();
+        this.stringKey = property.getUnicodeString();
         baseProperties = new HashSet();
         baseProperties.add(property);
     }

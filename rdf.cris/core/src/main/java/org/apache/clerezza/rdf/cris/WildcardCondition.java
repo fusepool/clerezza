@@ -68,6 +68,6 @@ public class WildcardCondition extends Condition{
     
     @Override
     public Query query() {
-        return new WildcardQuery(new Term(property.stringKey, pattern));
+        return new WildcardQuery(new Term(property.getStringKey(), pattern));
     }
 }

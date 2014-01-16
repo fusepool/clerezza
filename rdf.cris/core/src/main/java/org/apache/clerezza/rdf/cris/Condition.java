@@ -24,11 +24,32 @@
  */
 package org.apache.clerezza.rdf.cris;
 
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.Query;
 
 public abstract class Condition {
     
+    protected BooleanClause.Occur booleanClause = BooleanClause.Occur.SHOULD;
+    
     protected abstract Query query();
+    
+    protected float boost = 1.0f;
+    
+    public BooleanClause.Occur getBooleanClause() {
+      return booleanClause;
+    }
+    
+    public void setBooleanClause(BooleanClause.Occur clause){
+      this.booleanClause = clause;
+    }
+    
+    public void setBoost(float boost){
+      this.boost = boost;
+    }
+    
+    public float getBoost(){
+      return this.boost;
+    }
 
 }
 
