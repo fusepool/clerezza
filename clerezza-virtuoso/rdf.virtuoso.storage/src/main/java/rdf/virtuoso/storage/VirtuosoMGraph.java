@@ -20,7 +20,9 @@ package rdf.virtuoso.storage;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.wymiwyg.commons.util.collections.BidiMap;
 import org.wymiwyg.commons.util.collections.BidiMapImpl;
 
+import rdf.virtuoso.storage.access.VirtuosoWeightedProvider;
 import virtuoso.jdbc4.VirtuosoConnection;
 import virtuoso.jdbc4.VirtuosoException;
 import virtuoso.jdbc4.VirtuosoExtendedString;
@@ -78,7 +81,7 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	/**
 	 * Connection
 	 */
-	private VirtuosoConnection connection = null;
+//	private VirtuosoConnection connection = null;
 	/**
 	 * The name of the graph
 	 */
@@ -86,6 +89,7 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	private int size = 0;
 
 	private VirtuosoGraph readOnly = null;
+	private VirtuosoWeightedProvider provider = null;
 
 	/**
 	 * Creates a {@link VirtuosoMGraph} Virtuoso MGraph binds directly to the
@@ -93,11 +97,11 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	 * 
 	 * @param connection
 	 */
-	public VirtuosoMGraph(String name, VirtuosoConnection connection) {
-		logger.debug("VirtuosoMGraph(String {}, VirtuosoConnection {})", name,
-				connection);
+	public VirtuosoMGraph(String name, VirtuosoWeightedProvider provider) {
+		logger.debug("VirtuosoMGraph(String {}, VirtuosoWeightedProvider {})", name,
+				provider);
 		this.name = name;
-		this.connection = connection;
+		this.provider  = provider;
 		this.bnodesMap = new BidiMapImpl<String, BNode>();
 	}
 
@@ -105,10 +109,12 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	 * Gets the connection
 	 * 
 	 * @return
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	protected VirtuosoConnection getConnection() {
+	protected VirtuosoConnection getConnection() throws SQLException, ClassNotFoundException {
 		logger.debug("getConnection()");
-		return this.connection;
+		return this.provider.getConnection();
 	}
 
 	@Override
@@ -127,7 +133,7 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 		logger.debug("asVirtuosoGraph()");
 		if (this.readOnly == null) {
 			logger.debug("create embedded singleton read-only instance");
-			this.readOnly = new VirtuosoGraph(name, connection);
+			this.readOnly = new VirtuosoGraph(name, provider);
 		}
 		return readOnly;
 	}
@@ -145,33 +151,79 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 		String virtSubject = toVirtSubject(subject);
 		String virtPredicate = toVirtPredicate(predicate);
 		String virtObject = toVirtObject(object);
-		sb.append("SPARQL SELECT ?SUBJECT ?PREDICATE ?OBJECT WHERE { GRAPH <")
-				.append(this.getName()).append("> { ")
-				.append(" ?SUBJECT ?PREDICATE ?OBJECT ");
+//		
+//		sb.append("SPARQL SELECT ?SUBJECT ?PREDICATE ?OBJECT WHERE { GRAPH <")
+//				.append(this.getName()).append("> { ")
+//				.append(" ?SUBJECT ?PREDICATE ?OBJECT ");
+//		if (virtSubject != null) {
+//			sb.append(". FILTER( ").append("?SUBJECT = ").append(virtSubject)
+//					.append(") ");
+//		}
+//		if (virtPredicate != null) {
+//			sb.append(". FILTER( ").append("?PREDICATE = ")
+//					.append(virtPredicate).append(") ");
+//		}
+//		if (virtObject != null) {
+//			sb.append(". FILTER( ").append("?OBJECT = ").append(virtObject)
+//					.append(") ");
+//		}
+		
+		sb.append("SPARQL SELECT ");
 		if (virtSubject != null) {
-			sb.append(". FILTER( ").append("?SUBJECT = ").append(virtSubject)
-					.append(") ");
+			sb.append(" ").append(virtSubject).append(" as ?subject");
+		}else{
+			sb.append(" ?subject ");
 		}
 		if (virtPredicate != null) {
-			sb.append(". FILTER( ").append("?PREDICATE = ")
-					.append(virtPredicate).append(") ");
+			sb.append(" ").append(virtPredicate).append(" as ?predicate");
+		}else{
+			sb.append(" ?predicate ");
 		}
 		if (virtObject != null) {
-			sb.append(". FILTER( ").append("?OBJECT = ").append(virtObject)
-					.append(") ");
+			sb.append(" ").append(virtObject).append(" as ?object");
+		}else{
+			sb.append(" ?object ");
 		}
+		sb.append(" WHERE { GRAPH <").append(this.getName()).append("> { ");
+		if (virtSubject != null) {
+			sb.append(" ").append(virtSubject).append(" ");
+		}else{
+			sb.append(" ?subject ");
+		}
+		if (virtPredicate != null) {
+			sb.append(" ").append(virtPredicate).append(" ");
+		}else{
+			sb.append(" ?predicate ");
+		}
+		if (virtObject != null) {
+			sb.append(" ").append(virtObject).append(" ");
+		}else{
+			sb.append(" ?object ");
+		}
+		
 		sb.append(" } } ");
 
 		String sql = sb.toString();
 		logger.debug("Executing SQL: {}", sql);
-		Statement st;
+		Statement st = null;
+		List<Triple> list = null;
+		Exception e = null;
+		VirtuosoConnection connection = null;
+		VirtuosoResultSet rs = null;
 		try {
 			readLock.lock();
+			connection = provider.getConnection();
 			st = connection.createStatement();
 			boolean has = st.execute(sql);
-			final VirtuosoResultSet rs = (VirtuosoResultSet) st.getResultSet();
+			rs = (VirtuosoResultSet) st.getResultSet();
+			list = new ArrayList<Triple>();
+			while(rs.next()){
+				list.add(new TripleBuilder(rs.getObject(1),
+						rs.getObject(2), rs.getObject(3)).build());
+			}
 			readLock.unlock();
-			return new Iterator<Triple>() {
+			/*
+			iterator = new Iterator<Triple>() {
 				Triple current = null;
 				private boolean didNext = false;
 				private boolean hasNext = false;
@@ -184,13 +236,23 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 							hasNext = rs.next();
 							didNext = true;
 						}
-						return hasNext;
 					} catch (SQLException e) {
 						logger.error("Error while iterating results", e);
-						return false;
 					} finally {
 						readLock.unlock();
 					}
+					if(hasNext == false){
+						// here we close the connection
+						// XXX Surely this is wrong
+						try { if (rs != null) rs.close(); } catch (Exception ex) {};
+					    try { if (st != null) st.close(); } catch (Exception ex) {};
+						try {
+							connection.close();
+						} catch (VirtuosoException e1) {
+							logger.error("Cannot close connection", e1);
+						}
+					}
+					return hasNext;
 				}
 
 				@Override
@@ -224,15 +286,33 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 						writeLock.unlock();
 					}
 				}
-
 			};
-		} catch (VirtuosoException e) {
-			logger.error("ERROR while executing statement", e);
-			throw new RuntimeException(e);
-		} catch (SQLException e) {
-			logger.error("ERROR while executing statement", e);
+			*/
+		} catch (VirtuosoException ve) {
+			logger.error("ERROR while executing statement", ve);
+			logger.error(" executing SQL: {}", sql);
+			e = ve;
+		} catch (SQLException e1) {
+			logger.error("ERROR while executing statement", e1);
+			logger.error(" executing SQL: {}", sql);
+			e = e1;
+		} catch (ClassNotFoundException e1) {
+			logger.error("ERROR while executing statement", e1);
+			e = e1;
+		} finally{
+			try { if (rs != null) rs.close(); } catch (Exception ex) {};
+		    try { if (st != null) st.close(); } catch (Exception ex) {};
+			try {
+				connection.close();
+			} catch (VirtuosoException e1) {
+				logger.error("Cannot close connection", e1);
+			}
+		}
+		
+		if(list == null || e != null){
 			throw new RuntimeException(e);
 		}
+		return list.iterator();
 	}
 
 	/**
@@ -250,24 +330,41 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 		logger.debug("clear()");
 		String SQL = "SPARQL CLEAR GRAPH <" + this.getName() + ">";
 		this.writeLock.lock();
+		VirtuosoConnection connection = null;
+		Exception e = null;
+		Statement st =null;
 		try {
 			logger.debug("Executing SQL: {}", SQL);
-			Statement st = getConnection().createStatement();
+			connection = getConnection();
+			st = connection.createStatement();
 			boolean success = st.execute(SQL);
 			if (success) {
 				this.size = 0;
 			} else {
-				throw new RuntimeException(
+				e = new RuntimeException(
 						"Problems on clear() method. Cannot clear the graph!");
 			}
-		} catch (VirtuosoException e) {
+		} catch (VirtuosoException ve) {
 			logger.error("ERROR while executing statement", e);
-			throw new RuntimeException(e);
-		} catch (SQLException e) {
+			e = ve;
+		} catch (SQLException se) {
 			logger.error("ERROR while executing statement", e);
-			throw new RuntimeException(e);
+			e = se;
+		} catch (ClassNotFoundException e1) {
+			e = e1;
 		} finally {
+		    try { if (st != null) st.close(); } catch (Exception ex) {};
+			if(connection != null){
+				try {
+					connection.close();
+				} catch (VirtuosoException e1) {
+					logger.error("Cannot close connection", e1);
+				}
+			}
 			this.writeLock.unlock();
+		}
+		if(e!=null){
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -276,85 +373,171 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 		String SQL = "SPARQL SELECT COUNT(*) FROM <" + this.getName()
 				+ "> WHERE { ?s ?p ?o } ";
 		int size = 0;
+		logger.debug("loadSize() pre lock");
 		this.readLock.lock();
+		logger.debug("loadSize() post lock");
+		VirtuosoConnection connection = null;
+		Exception e = null;
+		Statement st = null;
+		VirtuosoResultSet rs = null;
 		try {
 			logger.debug("Executing SQL: {}", SQL);
-			Statement st = getConnection().createStatement();
-			VirtuosoResultSet rs = (VirtuosoResultSet) st.executeQuery(SQL);
+			connection = getConnection();
+			st = connection.createStatement();
+			rs = (VirtuosoResultSet) st.executeQuery(SQL);
 			rs.next();
 			size = rs.getInt(1);
-		} catch (VirtuosoException e) {
+		} catch (VirtuosoException ve) {
 			logger.error("ERROR while executing statement", e);
-			throw new RuntimeException(e);
-		} catch (SQLException e) {
+			e = ve;
+		} catch (SQLException se) {
 			logger.error("ERROR while executing statement", e);
-			throw new RuntimeException(e);
+			e = se;
+		} catch (ClassNotFoundException e1) {
+			e = e1;
 		} finally {
 			this.readLock.unlock();
+			logger.debug("loadSize() unlock");
+			try { if (rs != null) rs.close(); } catch (Exception ex) {};
+		    try { if (st != null) st.close(); } catch (Exception ex) {};
+			if(connection != null){
+				try {
+					connection.close();
+				} catch (VirtuosoException e1) {
+					logger.error("Cannot close connection", e1);
+				}
+			}
+		}
+		if(e!=null){
+			throw new RuntimeException(e);
 		}
 		this.size = size;
 	}
 
 	protected boolean performAdd(Triple triple) {
-		return add(triple, connection);
-	}
-
-	protected boolean performRemove(Triple triple) {
-		return remove(triple, connection);
-	}
-
-	/**
-	 * Adds a triple in the store
-	 * 
-	 * @param triple
-	 * @param connection
-	 * @return
-	 */
-	private boolean add(Triple triple, VirtuosoConnection connection) {
-		logger.debug("add(Triple {}, VirtuosoConnection {})", triple,
-				connection);
+		logger.debug("performAdd(Triple {})", triple);
 		String sql = getAddSQLStatement(triple);
 		logger.debug("Executing SQL: {}", sql);
 		writeLock.lock();
+		VirtuosoConnection connection = null;
+		Exception e = null;
+		Statement st = null;
 		try {
-			Statement st = connection.createStatement();
+			connection = getConnection();
+			st = connection.createStatement();
 			st.execute(sql);
-		} catch (VirtuosoException e) {
+		} catch (VirtuosoException ve) {
 			logger.error("ERROR while executing statement", e);
-			return false;
-		} catch (SQLException e) {
+			e = ve;
+		} catch (SQLException se) {
 			logger.error("ERROR while executing statement", e);
-			return false;
+			e = se;
+		} catch (ClassNotFoundException e1) {
+			e = e1;
 		} finally {
 			writeLock.unlock();
+		    try { if (st != null) st.close(); } catch (Exception ex) {};
+			if(connection != null){
+				try {
+					connection.close();
+				} catch (VirtuosoException e1) {
+					logger.error("Cannot close connection", e1);
+				}
+			}
+		}
+		if(e!=null){
+			return false;
 		}
 		return true;
 	}
 
-	/**
-	 * Removes a triple from the store.
-	 * 
-	 * @param triple
-	 * @param connection
-	 * @return
-	 */
-	private boolean remove(Triple triple, VirtuosoConnection connection) {
-		logger.debug("remove(Triple triple, VirtuosoConnection connection)",
-				triple, connection);
+	protected boolean performRemove(Triple triple) {
+		logger.debug("performRemove(Triple triple)",
+				triple);
 		String sql = getRemoveSQLStatement(triple);
 		logger.debug("Executing SQL: {}", sql);
 		writeLock.lock();
+		VirtuosoConnection connection = null;
+		Exception e = null;
+		Statement st = null;
 		try {
-			Statement st = connection.createStatement();
+			connection = getConnection();
+			st = connection.createStatement();
 			st.execute(sql);
-		} catch (SQLException e) {
+		} catch (SQLException se) {
 			logger.error("ERROR while executing statement", e);
-			return false;
+			e = se;
+		} catch (ClassNotFoundException e1) {
+			e = e1;
 		} finally {
 			writeLock.unlock();
+		    try { if (st != null) st.close(); } catch (Exception ex) {};
+			if(connection != null){
+				try {
+					connection.close();
+				} catch (VirtuosoException e1) {
+					logger.error("Cannot close connection", e1);
+				}
+			}
+		}
+		if(e!=null){
+			return false;
 		}
 		return true;
 	}
+//
+//	/**
+//	 * Adds a triple in the store
+//	 * 
+//	 * @param triple
+//	 * @param connection
+//	 * @return
+//	 */
+//	private boolean add(Triple triple, VirtuosoConnection connection) {
+//		logger.debug("add(Triple {}, VirtuosoConnection {})", triple,
+//				connection);
+//		String sql = getAddSQLStatement(triple);
+//		logger.debug("Executing SQL: {}", sql);
+//		writeLock.lock();
+//		try {
+//			Statement st = connection.createStatement();
+//			st.execute(sql);
+//		} catch (VirtuosoException e) {
+//			logger.error("ERROR while executing statement", e);
+//			return false;
+//		} catch (SQLException e) {
+//			logger.error("ERROR while executing statement", e);
+//			return false;
+//		} finally {
+//			writeLock.unlock();
+//		}
+//		return true;
+//	}
+
+//	/**
+//	 * Removes a triple from the store.
+//	 * 
+//	 * @param triple
+//	 * @param connection
+//	 * @return
+//	 */
+//	private boolean remove(Triple triple, VirtuosoConnection connection) {
+//		logger.debug("remove(Triple triple, VirtuosoConnection connection)",
+//				triple, connection);
+//		String sql = getRemoveSQLStatement(triple);
+//		logger.debug("Executing SQL: {}", sql);
+//		writeLock.lock();
+//		try {
+//			Statement st = connection.createStatement();
+//			st.execute(sql);
+//		} catch (SQLException e) {
+//			logger.error("ERROR while executing statement", e);
+//			return false;
+//		} finally {
+//			writeLock.unlock();
+//		}
+//		return true;
+//	}
 
 	/**
 	 * Returns the graph name
@@ -373,13 +556,17 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	 * @param virtbnode
 	 * @return
 	 */
-	private BNode toBNode(String virtbnode) {
+	private VirtuosoBNode toBNode(String virtbnode) {
 		logger.debug("toBNode(String {})", virtbnode);
-		BNode bnode = bnodesMap.get(virtbnode);
-		if (bnode == null) {
-			bnode = new BNode();
-			bnodesMap.put(virtbnode, bnode);
-		}
+//		VirtuosoBNode bnode = bnodesMap.get(virtbnode);
+		VirtuosoBNode bnode;
+//		if (bnode == null) {
+			//bnode = new BNode();
+			bnode = new VirtuosoBNode(virtbnode);
+			// skolemize so we get it in future queries
+			//bnodesMap.put(virtbnode.replaceFirst("nodeID://", "_:"), bnode);
+//			bnodesMap.put(new StringBuilder().append('<').append(virtbnode).append('>').toString(), bnode);
+//		}
 		// Subject is BNode
 		return bnode;
 	}
@@ -403,13 +590,25 @@ public class VirtuosoMGraph extends AbstractMGraph implements MGraph,
 	 */
 	private String toVirtBnode(BNode bnode) {
 		logger.debug("toVirtBnode(BNode {})", bnode);
-		String virtBnode = bnodesMap.getKey(bnode);
-		if (virtBnode == null) {
-			// We create a local bnode mapped to the BNode given
-			virtBnode = nextVirtBnode();
-			bnodesMap.put(virtBnode, bnode);
+//		String virtBnode = bnodesMap.getKey(bnode);
+//		
+//		if (virtBnode == null) {
+//			// We create a local bnode mapped to the BNode given
+//			virtBnode = nextVirtBnode();
+//			bnodesMap.put(virtBnode, bnode);
+//		}
+//		return virtBnode;
+		if(bnode instanceof VirtuosoBNode){
+			return ((VirtuosoBNode) bnode).asSkolemIri();
+		}else{
+			String virtBnode = bnodesMap.getKey(bnode);
+			if (virtBnode == null) {
+				// We create a local bnode mapped to the BNode given
+				virtBnode = nextVirtBnode();
+				bnodesMap.put(virtBnode, bnode);
+			}
+			return bnodesMap.getKey(bnode);
 		}
-		return virtBnode;
 	}
 
 	private String getAddSQLStatement(Triple triple) {
